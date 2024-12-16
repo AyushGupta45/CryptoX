@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { coindata } from "@/constants";
-import { fetchHistoricalData } from "@/utils/binance";
-
+import { fetchHistoricalData } from "@/backend/binance";
 
 export async function GET() {
   try {
