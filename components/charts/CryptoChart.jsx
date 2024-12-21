@@ -1,10 +1,14 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 
 const CryptoChart = ({ klineData }) => {
   const isInitialRender = useRef(true);
+
+  useEffect(() => {
+    isInitialRender.current = true; // Reset animation state when data updates
+  }, [klineData]);
 
   return (
     <div>

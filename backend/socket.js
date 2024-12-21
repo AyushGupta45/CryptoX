@@ -14,48 +14,39 @@ const io = new Server(server, {
   },
 });
 
-const previousData = {};
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  const subscriptions = new Set();
 
   socket.on("subscribeToSymbol", async ({ symbol, interval }) => {
-    console.log(`Subscribed to symbol: ${symbol} with interval: ${interval}`);
+    if (subscriptions.has(symbol)) return;
 
-    // Fetch and send historical data
+    subscriptions.add(symbol);
+
     try {
-      const historicalData = await fetchHistoricalData(symbol, "1d", "1000");
-      previousData[symbol] = historicalData;
-
-      // Emit historical data to the client
+      const historicalData = await fetchHistoricalData(symbol, interval, "1000");
       socket.emit("klineData", {
         symbol,
         history: historicalData,
       });
-    } catch (error) {
-      console.error(`Error fetching historical data for ${symbol}:`, error);
-    }
 
-    // Start real-time Kline stream
-    startKlineStream(symbol, interval, (newPoint) => {
-      if (!previousData[symbol]) previousData[symbol] = [];
-      previousData[symbol].push(newPoint);
-
-      if (previousData[symbol].length > 100) {
-        previousData[symbol].shift();
-      }
-      socket.emit("klineData", {
-        symbol,
-        newPoint,
-        history: previousData[symbol],
+      startKlineStream(symbol, interval, (newPoint) => {
+        socket.emit("klineData", { symbol, newPoint });
       });
-    });
+    } catch (error) {
+      console.error("Error fetching historical data:", error);
+    }
+  });
+
+  socket.on("unsubscribeFromSymbol", ({ symbol }) => {
+    subscriptions.delete(symbol);
   });
 
   socket.on("disconnect", () => {
-    console.log("A user disconnected");
+    subscriptions.clear();
   });
 });
+
 
 server.listen(4000, () => {
   console.log("Server running on http://localhost:4000");

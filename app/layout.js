@@ -1,6 +1,5 @@
 import localFont from "next/font/local";
 import "./globals.css";
-import SessionWrapper from "@/components/SessionWrapper";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/toaster";
@@ -25,19 +24,19 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <SessionWrapper>
+
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <MarketDataProvider>
             <SidebarProvider>
               <AppSidebar />
-              <main className="overflow-hidden p-10">{children}</main>
+              <main className="overflow-hidden p-10 w-full">{children}</main>
             </SidebarProvider>
           </MarketDataProvider>
           <Toaster />
         </body>
-      </SessionWrapper>
+
     </html>
   );
 }
