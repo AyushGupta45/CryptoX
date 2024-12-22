@@ -8,6 +8,9 @@ const useKlineData = (symbol, interval = "1d") => {
 
   useEffect(() => {
     if (!symbol) return;
+
+    setKlineData([]);
+    socket.emit("unsubscribeFromSymbol", { symbol });
     socket.emit("subscribeToSymbol", { symbol, interval });
 
     const handleKlineData = (data) => {
@@ -28,7 +31,6 @@ const useKlineData = (symbol, interval = "1d") => {
             lastCandle.low = Math.min(lastCandle.low, data.newPoint.low);
             lastCandle.volume += data.newPoint.volume;
           } else {
-            // Add new candle
             newData.push(data.newPoint);
           }
 
@@ -40,7 +42,7 @@ const useKlineData = (symbol, interval = "1d") => {
     socket.on("klineData", handleKlineData);
 
     return () => {
-      socket.emit("unsubscribeFromSymbol", { symbol, interval });
+      socket.emit("unsubscribeFromSymbol", { symbol });
       socket.off("klineData", handleKlineData);
     };
   }, [symbol, interval]);

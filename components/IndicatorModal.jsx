@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { PrimaryIndicators, SecondaryIndicators } from "@/constants";
@@ -46,9 +52,7 @@ export const IndicatorModal = ({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Manage Indicators</DialogTitle>
-          <DialogDescription>
-            Select indicators for the main chart (Primary) or below (Secondary).
-          </DialogDescription>
+          <DialogDescription>Select indicators..</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <Input
@@ -57,7 +61,7 @@ export const IndicatorModal = ({
             onChange={(e) => setSearch(e.target.value)}
           />
           <div className="max-h-96 overflow-y-auto">
-            <div>
+            <div className="">
               <h3 className="font-semibold mb-2">Primary Indicators</h3>
               {filteredPrimaryIndicators.map((indicator) => (
                 <div
@@ -70,9 +74,14 @@ export const IndicatorModal = ({
                       (item) => item.name === indicator.name
                     )}
                   />
-                  <div>
-                    <p className="font-medium">{indicator.name}</p>
-                    <p className="text-sm text-gray-500">{indicator.description}</p>
+
+                  <div className="flex justify-center items-center">
+                    <p className="font-medium">
+                      {indicator.name}{" "}
+                      <span className="text-sm text-gray-500">
+                        ({indicator.description})
+                      </span>
+                    </p>
                   </div>
                 </div>
               ))}
@@ -90,9 +99,14 @@ export const IndicatorModal = ({
                       (item) => item.name === indicator.name
                     )}
                   />
-                  <div>
-                    <p className="font-medium">{indicator.name}</p>
-                    <p className="text-sm text-gray-500">{indicator.description}</p>
+
+                  <div className="flex justify-center items-center">
+                    <p className="font-medium">
+                      {indicator.name}{" "}
+                      <span className="text-sm text-gray-500">
+                        ({indicator.description})
+                      </span>
+                    </p>
                   </div>
                 </div>
               ))}

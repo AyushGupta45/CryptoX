@@ -1,5 +1,4 @@
 "use client";
-import { useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -9,31 +8,11 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMarketData } from "@/context/MarketDataContext";
+import { useFetchMarketData } from "@/hooks/useMarketData";
 import SimpleLineChart from "@/components/charts/SimpleLineChart";
 
 const Markets = () => {
-  const { marketData, setMarketData } = useMarketData();
-
-  useEffect(() => {
-    const fetchMarketData = async () => {
-      if (!marketData) {
-        try {
-          const response = await fetch("/api/marketdata/price");
-          if (response.ok) {
-            const data = await response.json();
-            setMarketData(data);
-          } else {
-            console.error("Failed to fetch market data");
-          }
-        } catch (error) {
-          console.error("Error fetching market data:", error);
-        }
-      }
-    };
-
-    fetchMarketData();
-  }, [marketData, setMarketData]);
+  const { marketData } = useFetchMarketData();
 
   if (!marketData) {
     return (
@@ -80,12 +59,13 @@ const Markets = () => {
                 alt={crypto.name}
                 className="w-12 h-12 object-contain"
               />
+
               <div className="flex flex-col items-start gap-1">
                 <CardTitle className="flex flex-row text-3xl font-extrabold text-gray-800 gap-2">
                   <p>{crypto.name}</p>
                   <div className="flex flex-row items-end justify-start">
                     <p className="text-gray-500 text-sm font-bold pb-0.5">
-                      ({crypto.symbol.slice(0, -4).toUpperCase()})
+                      ({crypto.baseAsset})
                     </p>
                   </div>
                 </CardTitle>

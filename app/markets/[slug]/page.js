@@ -1,6 +1,7 @@
 "use client";
 
 import Kline from "@/components/charts/Kline";
+import { Skeleton } from "@/components/ui/skeleton";
 import useKlineData from "@/hooks/useWebsocket";
 import React, { useState } from "react";
 
@@ -16,9 +17,10 @@ const MarketPage = ({ params: { slug } }) => {
           type="candle_solid"
           axis="normal"
           data={klineData}
+          symbol={symbol}
         />
       ) : (
-        <p className="text-center">Loading chart data...</p>
+        <Skeleton className="w-full h-[98%] text-center">Loading</Skeleton>
       )}
     </div>
   );

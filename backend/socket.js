@@ -1,8 +1,7 @@
-// backend/socket.js
 import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { fetchHistoricalData, startKlineStream } from "./binance.js"; // Adjusted import path
+import { fetchHistoricalData, startKlineStream, stopKlineStream } from "./binance.js";
 
 const app = express();
 const server = createServer(app);
@@ -14,17 +13,20 @@ const io = new Server(server, {
   },
 });
 
-
 io.on("connection", (socket) => {
-  const subscriptions = new Set();
+  let currentSubscription = null;
 
   socket.on("subscribeToSymbol", async ({ symbol, interval }) => {
-    if (subscriptions.has(symbol)) return;
+    if (currentSubscription) {
+      stopKlineStream(currentSubscription);
+    }
 
-    subscriptions.add(symbol);
+    console.log(`Subscribing to new symbol: ${symbol}`);
+    currentSubscription = symbol;
 
     try {
       const historicalData = await fetchHistoricalData(symbol, interval, "1000");
+
       socket.emit("klineData", {
         symbol,
         history: historicalData,
@@ -34,19 +36,24 @@ io.on("connection", (socket) => {
         socket.emit("klineData", { symbol, newPoint });
       });
     } catch (error) {
-      console.error("Error fetching historical data:", error);
+      console.error(`Error subscribing to symbol ${symbol}:`, error);
     }
   });
 
   socket.on("unsubscribeFromSymbol", ({ symbol }) => {
-    subscriptions.delete(symbol);
+    if (currentSubscription === symbol) {
+      stopKlineStream(symbol);
+      currentSubscription = null;
+    }
   });
 
   socket.on("disconnect", () => {
-    subscriptions.clear();
+    if (currentSubscription) {
+      stopKlineStream(currentSubscription);
+      currentSubscription = null;
+    }
   });
 });
-
 
 server.listen(4000, () => {
   console.log("Server running on http://localhost:4000");

@@ -2,13 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+*::-webkit-scrollbar {
+  display: none;
+}
 
 .sidebar-icons{
   height: 22px !important;
   width: 22px !important;
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   width: 10px;
 }
 
@@ -19,7 +22,7 @@
 ::-webkit-scrollbar-thumb {
   background: #4e4e4e;
   border-radius: 2px;
-}
+} */
 
 @layer base {
   :root {

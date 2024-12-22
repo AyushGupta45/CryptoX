@@ -3,7 +3,6 @@ import "./globals.css";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/toaster";
-import { MarketDataProvider } from "@/context/MarketDataContext";
 
 const geistSans = localFont({
   src: "../public/fonts/GeistVF.woff",
@@ -24,19 +23,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <MarketDataProvider>
-            <SidebarProvider>
-              <AppSidebar />
-              <main className="overflow-hidden p-10 w-full">{children}</main>
-            </SidebarProvider>
-          </MarketDataProvider>
-          <Toaster />
-        </body>
-
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <SidebarProvider>
+          <AppSidebar />
+          <main className="overflow-hidden p-10 w-full">{children}</main>
+        </SidebarProvider>
+        <Toaster />
+      </body>
     </html>
   );
 }

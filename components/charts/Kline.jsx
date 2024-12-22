@@ -1,22 +1,21 @@
 import { useEffect, useState, useCallback } from "react";
 import { dispose, init } from "klinecharts";
-import { Button } from "@/components/ui/button";
 import { IndicatorModal } from "../IndicatorModal";
-import { FaChartArea, FaChartBar } from "react-icons/fa";
+import { FaRegChartBar } from "react-icons/fa";
+import { MdCandlestickChart, MdAreaChart } from "react-icons/md";
+import { coindata } from "@/constants";
 
 const CHART_ID = "kline-chart";
 
-const Kline = ({ axis, data }) => {
+const Kline = ({ axis, data, symbol }) => {
   const [chart, setChart] = useState(null);
   const [chartType, setChartType] = useState("candle");
   const [primaryIndicators, setPrimaryIndicators] = useState([]);
   const [secondaryIndicators, setSecondaryIndicators] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const formatTimestamp = (timestamp) => {
-    const date = new Date(timestamp);
-    return `${date.toLocaleDateString()}`;
-  };
+  const coinInfo = coindata.find((coin) => coin.symbol === symbol);
+  const coinName = coinInfo ? coinInfo.name : "Unknown";
 
   useEffect(() => {
     const chartInstance = init(CHART_ID);
@@ -48,22 +47,16 @@ const Kline = ({ axis, data }) => {
         candle: {
           type: chartType === "candle" ? "candle_solid" : "area",
           tooltip: {
-            labels: [
-              "Date: ",
-              "Open: ",
-              "Close: ",
-              "High: ",
-              "Low: ",
-              "Volume: ",
-            ],
-            values: (kLineData) => [
-              formatTimestamp(kLineData.timestamp),
-              kLineData.open?.toFixed(2) || "--",
-              kLineData.close?.toFixed(2) || "--",
-              kLineData.high?.toFixed(2) || "--",
-              kLineData.low?.toFixed(2) || "--",
-              kLineData.volume?.toFixed(2) || "--",
-            ],
+            labels: ["Open: ", "Close: ", "High: ", "Low: ", "Volume: "],
+            values: (kLineData) => {
+              return [
+                kLineData.open?.toFixed(2) || "--",
+                kLineData.close?.toFixed(2) || "--",
+                kLineData.high?.toFixed(2) || "--",
+                kLineData.low?.toFixed(2) || "--",
+                kLineData.volume?.toFixed(2) || "--",
+              ];
+            },
           },
         },
         yAxis: {
@@ -110,16 +103,39 @@ const Kline = ({ axis, data }) => {
 
   return (
     <div className="w-full h-full relative">
-      <div className="flex items-center justify-end gap-2 mb-2">
-        <Button onClick={() => setModalOpen(true)}>Manage Indicators</Button>
-        <Button onClick={toggleChartType} className="flex items-center">
-          {chartType === "candle" ? <FaChartArea /> : <FaChartBar />}
-          <span className="ml-1 capitalize">
-            {chartType === "candle" ? "Switch to Area" : "Switch to Candle"}
-          </span>
-        </Button>
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="text-2xl font-bold">{coinName} chart</div>
+        <div className="flex gap-4">
+          <div
+            className="flex flex-col justify-center items-center"
+            onClick={() => setModalOpen(true)}
+          >
+            <FaRegChartBar size={26} className="cursor-pointer" />
+            <span className="text-xs">Indicator</span>
+          </div>
+
+          <div className="flex flex-col justify-center items-center">
+            {chartType === "candle" ? (
+              <div
+                className="flex flex-col justify-center items-center"
+                onClick={toggleChartType}
+              >
+                <MdAreaChart size={26} className="cursor-pointer" />
+                <span className="text-xs">Area chart</span>
+              </div>
+            ) : (
+              <div
+                className="flex flex-col justify-center items-center"
+                onClick={toggleChartType}
+              >
+                <MdCandlestickChart size={26} className="cursor-pointer" />
+                <span className="text-xs">Candle chart</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-      <div id={CHART_ID} style={{ height: "85%" }} />
+      <div id={CHART_ID} className="h-[93%]" />
 
       <IndicatorModal
         open={modalOpen}

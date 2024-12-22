@@ -1,45 +1,30 @@
 import { NextResponse } from "next/server";
+import { fetchMarketData, fetchHistoricalData } from "@/backend/binance";
 import { coindata } from "@/constants";
-import { fetchHistoricalData } from "@/backend/binance";
 
-export async function GET() {
+export async function GET(req) {
   try {
-    const marketDataPromises = coindata.map(async (coin) => {
-      const statsUrl = `https://testnet.binance.vision/api/v3/ticker/24hr?symbol=${coin.symbol}`;
-      const priceUrl = `https://testnet.binance.vision/api/v3/ticker/price?symbol=${coin.symbol}`;
+    const symbols = coindata.map((coin) => coin.symbol);
+    const marketData = await Promise.all(
+      symbols.map(async (symbol) => {
+        const marketStats = await fetchMarketData([symbol]);
+        const historicalData = await fetchHistoricalData(symbol, "1d", 100);
 
-      const [statsRes, pricesRes] = await Promise.all([
-        fetch(statsUrl),
-        fetch(priceUrl),
-      ]);
+        return {
+          ...marketStats[0],
+          historicalData,
+        };
+      })
+    );
 
-      if (!statsRes.ok || !pricesRes.ok) {
-        throw new Error(`Failed to fetch data for ${coin.symbol}`);
-      }
-
-      const statsData = await statsRes.json();
-      const pricesData = await pricesRes.json();
-
-      const historicalData = await fetchHistoricalData(coin.symbol);
-
-      return {
-        symbol: coin.symbol,
-        name: coin.name,
-        baseAsset: coin.baseAsset,
-        image: coin.image,
-        currentPrice: pricesData ? parseFloat(pricesData.price) : null,
-        priceChangePercentage24h: statsData
-          ? parseFloat(statsData.priceChangePercent)
-          : null,
-        volume: statsData ? parseFloat(statsData.volume) : null,
-        marketCap: statsData ? parseFloat(statsData.quoteVolume) : null,
-        historicalData,
-      };
+    return NextResponse.json(marketData, {
+      headers: {
+        "Cache-Control":
+          "no-store, no-cache, must-revalidate, proxy-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
     });
-
-    const marketData = await Promise.all(marketDataPromises);
-
-    return NextResponse.json(marketData);
   } catch (error) {
     console.error("Error fetching market data:", error);
     return NextResponse.json(
