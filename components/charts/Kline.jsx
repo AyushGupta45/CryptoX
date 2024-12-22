@@ -1,15 +1,25 @@
+"use client";
+
 import { useEffect, useState, useCallback } from "react";
 import { dispose, init } from "klinecharts";
 import { IndicatorModal } from "../IndicatorModal";
-import { FaRegChartBar } from "react-icons/fa";
-import { MdCandlestickChart, MdAreaChart } from "react-icons/md";
+import { MdCandlestickChart } from "react-icons/md";
+import {
+  AiOutlineLineChart,
+  AiOutlineAreaChart,
+  AiOutlineFieldNumber,
+  AiOutlineFunction,
+  AiOutlinePercentage,
+} from "react-icons/ai";
+
 import { coindata } from "@/constants";
 
 const CHART_ID = "kline-chart";
 
-const Kline = ({ axis, data, symbol }) => {
+const Kline = ({ data, symbol }) => {
   const [chart, setChart] = useState(null);
   const [chartType, setChartType] = useState("candle");
+  const [yAxisType, setYAxisType] = useState("normal");
   const [primaryIndicators, setPrimaryIndicators] = useState([]);
   const [secondaryIndicators, setSecondaryIndicators] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -45,7 +55,12 @@ const Kline = ({ axis, data, symbol }) => {
     if (chart) {
       chart.setStyleOptions({
         candle: {
-          type: chartType === "candle" ? "candle_solid" : "area",
+          type:
+            chartType === "candle"
+              ? "candle_solid"
+              : chartType === "line"
+              ? "line"
+              : "area",
           tooltip: {
             labels: ["Open: ", "Close: ", "High: ", "Low: ", "Volume: "],
             values: (kLineData) => {
@@ -60,7 +75,7 @@ const Kline = ({ axis, data, symbol }) => {
           },
         },
         yAxis: {
-          type: axis,
+          type: yAxisType,
           tickText: {
             color: "#888888",
           },
@@ -72,65 +87,95 @@ const Kline = ({ axis, data, symbol }) => {
         },
       });
     }
-  }, [chart, chartType, axis]);
+  }, [chart, chartType, yAxisType]);
 
   const updateIndicators = useCallback(() => {
     if (!chart) return;
 
-    const getSubId = (type) => `sub-${type}`;
     const getMainId = () => "candle_pane";
 
     chart.removeTechnicalIndicator(getMainId());
     primaryIndicators.forEach((indicator) => {
-      chart.createTechnicalIndicator(indicator.name, true, { id: getMainId() });
+        chart.createTechnicalIndicator(indicator.name, true, { id: getMainId() });
     });
 
-    chart.removeTechnicalIndicator(getSubId());
+    const secondaryIds = secondaryIndicators.map((indicator) => `sub-${indicator.name}`);
+    secondaryIds.forEach((id) => chart.removeTechnicalIndicator(id)); // Ensure all secondary indicators are removed
     secondaryIndicators.forEach((indicator) => {
-      chart.createTechnicalIndicator(indicator.name, false, {
-        id: getSubId(indicator.name),
-      });
+        chart.createTechnicalIndicator(indicator.name, false, { id: `sub-${indicator.name}` });
     });
-  }, [chart, primaryIndicators, secondaryIndicators]);
+}, [chart, primaryIndicators, secondaryIndicators]);
+
 
   useEffect(() => {
     if (chart) updateIndicators();
   }, [chart, updateIndicators]);
 
-  const toggleChartType = () => {
-    setChartType((prevType) => (prevType === "candle" ? "area" : "candle"));
+  const cycleChartType = () => {
+    setChartType((prevType) => {
+      if (prevType === "candle") return "line";
+      if (prevType === "line") return "area";
+      return "candle";
+    });
+  };
+
+  const toggleYAxisType = () => {
+    setYAxisType((prevType) =>
+      prevType === "normal" ? "percentage" : "normal"
+    );
   };
 
   return (
     <div className="w-full h-full relative">
       <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="text-2xl font-bold">{coinName} chart</div>
+        <div className="text-2xl font-bold">{coinName} Chart</div>
         <div className="flex gap-4">
           <div
-            className="flex flex-col justify-center items-center"
+            className="flex flex-col justify-center items-center cursor-pointer w-[70px]"
             onClick={() => setModalOpen(true)}
           >
-            <FaRegChartBar size={26} className="cursor-pointer" />
+            <AiOutlineFunction size={26} />
             <span className="text-xs">Indicator</span>
           </div>
 
-          <div className="flex flex-col justify-center items-center">
-            {chartType === "candle" ? (
-              <div
-                className="flex flex-col justify-center items-center"
-                onClick={toggleChartType}
-              >
-                <MdAreaChart size={26} className="cursor-pointer" />
-                <span className="text-xs">Area chart</span>
-              </div>
+          <div
+            className="flex flex-col justify-center items-center cursor-pointer w-[70px]"
+            onClick={cycleChartType}
+          >
+            {chartType === "candle" && (
+              <>
+                <MdCandlestickChart size={26} />
+                <span className="text-xs">Candle Chart</span>
+              </>
+            )}
+            {chartType === "line" && (
+              <>
+                <AiOutlineLineChart size={26} />
+                <span className="text-xs">Line Chart</span>
+              </>
+            )}
+            {chartType === "area" && (
+              <>
+                <AiOutlineAreaChart size={26} />
+                <span className="text-xs">Area Chart</span>
+              </>
+            )}
+          </div>
+
+          <div
+            className="flex flex-col justify-center items-center cursor-pointer w-[70px]"
+            onClick={toggleYAxisType}
+          >
+            {yAxisType === "percentage" ? (
+              <>
+                <AiOutlinePercentage size={26} />
+                <span className="text-xs">Percentage</span>
+              </>
             ) : (
-              <div
-                className="flex flex-col justify-center items-center"
-                onClick={toggleChartType}
-              >
-                <MdCandlestickChart size={26} className="cursor-pointer" />
-                <span className="text-xs">Candle chart</span>
-              </div>
+              <>
+                <AiOutlineFieldNumber size={26} />
+                <span className="text-xs">Normal</span>
+              </>
             )}
           </div>
         </div>

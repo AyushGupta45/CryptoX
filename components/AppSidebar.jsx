@@ -60,7 +60,7 @@ export default function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t">
-        <div className="text-sm font-semibold flex flex-row items-center justify-center gap-1">
+        <div className="text-sm font-medium flex flex-row items-center justify-center gap-1">
           <span><Copyright size={18}/> </span>
           <span>2024 CryptoX</span>
         </div>

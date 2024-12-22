@@ -52,7 +52,6 @@ export const IndicatorModal = ({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Manage Indicators</DialogTitle>
-          <DialogDescription>Select indicators..</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <Input
