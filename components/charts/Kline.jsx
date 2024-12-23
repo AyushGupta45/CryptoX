@@ -82,7 +82,7 @@ const Kline = ({ data, symbol }) => {
         },
         xAxis: {
           tickText: {
-            color: "#888888",
+            show: false,
           },
         },
       });
@@ -127,8 +127,8 @@ const Kline = ({ data, symbol }) => {
 
   return (
     <div className="w-full h-full relative">
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="text-2xl font-bold">{coinName} Chart</div>
+      <div className="flex items-center justify-between gap-2 mb-2 text-gray-700">
+        <h1 className="text-3xl font-bold">{coinName} Chart</h1>
         <div className="flex gap-4">
           <div
             className="flex flex-col justify-center items-center cursor-pointer w-[70px]"

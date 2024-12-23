@@ -4,6 +4,7 @@ import Kline from "@/components/charts/Kline";
 import { Skeleton } from "@/components/ui/skeleton";
 import useKlineData from "@/hooks/useWebsocket";
 import React, { useState } from "react";
+import { ThreeDots } from "react-loader-spinner";
 
 const MarketPage = ({ params: { slug } }) => {
   const symbol = slug.toUpperCase();
@@ -14,7 +15,18 @@ const MarketPage = ({ params: { slug } }) => {
       {klineData.length > 0 ? (
         <Kline data={klineData} symbol={symbol} />
       ) : (
-        <Skeleton className="w-full h-[98%] text-center">Loading</Skeleton>
+        <div className="w-full h-[98%] flex justify-center items-center">
+          <ThreeDots
+            visible={true}
+            height="100"
+            width="100"
+            color="#4fa94d"
+            radius="9"
+            ariaLabel="three-dots-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+          />
+        </div>
       )}
     </div>
   );

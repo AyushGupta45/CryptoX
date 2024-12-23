@@ -6,6 +6,7 @@ import {
   Home,
   Settings,
   Copyright,
+  LayoutTemplate
 } from "lucide-react";
 import {
   Sidebar,
@@ -23,6 +24,7 @@ import Link from "next/link";
 const items = [
   { title: "Home", url: "/", icon: Home },
   { title: "Markets", url: "/markets", icon: BarChart },
+  { title: "DataFrame", url: "/dataframe", icon: LayoutTemplate },
   { title: "Portfolio", url: "/portfolio", icon: BriefcaseBusiness },
   { title: "Configuration", url: "/config", icon: Settings },
 ];
@@ -61,7 +63,9 @@ export default function AppSidebar() {
 
       <SidebarFooter className="p-4 border-t">
         <div className="text-sm font-medium flex flex-row items-center justify-center gap-1">
-          <span><Copyright size={18}/> </span>
+          <span>
+            <Copyright size={18} />{" "}
+          </span>
           <span>2024 CryptoX</span>
         </div>
       </SidebarFooter>
