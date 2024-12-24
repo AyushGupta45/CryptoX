@@ -32,7 +32,11 @@ export const fetchMarketData = async (symbols) => {
   }
 };
 
-export const fetchHistoricalData = async (symbol, interval = "1d", limit = 1000) => {
+export const fetchHistoricalData = async (
+  symbol,
+  interval = "1d",
+  limit = 1000
+) => {
   try {
     const historicalData = await client.candles({ symbol, interval, limit });
     return historicalData.map((data) => ({
@@ -48,7 +52,6 @@ export const fetchHistoricalData = async (symbol, interval = "1d", limit = 1000)
     return [];
   }
 };
-
 
 export const startKlineStream = (symbol, interval, onUpdate) => {
   if (activeStreams[symbol]) {

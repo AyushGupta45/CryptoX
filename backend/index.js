@@ -1,14 +1,33 @@
 import express from "express";
 import { Server } from "socket.io";
+import cors from "cors";
+import dotenv from "dotenv";
 import { createServer } from "http";
-import { fetchHistoricalData, startKlineStream, stopKlineStream } from "./binance.js";
+import {
+  fetchHistoricalData,
+  startKlineStream,
+  stopKlineStream,
+} from "./controller/binance.js";
+import { fetchData } from "./controller/fetchData.js";
+
+dotenv.config({path: "../.env.local"});
 
 const app = express();
 const server = createServer(app);
+const url = process.env.NEXT_PUBLIC_NEXT_URL;
+console.log("URL",url);
+
+app.use(
+  cors({
+    origin: url,
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: url,
     methods: ["GET", "POST"],
   },
 });
@@ -25,7 +44,11 @@ io.on("connection", (socket) => {
     currentSubscription = symbol;
 
     try {
-      const historicalData = await fetchHistoricalData(symbol, interval, "1000");
+      const historicalData = await fetchHistoricalData(
+        symbol,
+        interval,
+        "1000"
+      );
 
       socket.emit("klineData", {
         symbol,
@@ -55,6 +78,8 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(4000, () => {
-  console.log("Server running on http://localhost:4000");
+app.get("/api/marketdata/price", fetchData);
+
+server.listen(process.env.BACKEND_PORT, () => {
+  console.log(`Server running on ${process.env.NEXT_PUBLIC_BACKEND_URL}`);
 });

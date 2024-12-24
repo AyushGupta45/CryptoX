@@ -4,7 +4,7 @@
   "main": "socket.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --no-warnings socket.js",
+    "dev": "nodemon --no-warnings index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
