@@ -1,7 +1,6 @@
 "use client";
 
 import Kline from "@/components/charts/Kline";
-import { Skeleton } from "@/components/ui/skeleton";
 import useKlineData from "@/hooks/useWebsocket";
 import React, { useState } from "react";
 import { ThreeDots } from "react-loader-spinner";
