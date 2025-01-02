@@ -6,7 +6,6 @@ import {
   Home,
   Settings,
   Copyright,
-  LayoutTemplate
 } from "lucide-react";
 import {
   Sidebar,
@@ -24,7 +23,6 @@ import Link from "next/link";
 const items = [
   { title: "Home", url: "/", icon: Home },
   { title: "Markets", url: "/markets", icon: BarChart },
-  { title: "DataFrame", url: "/dataframe", icon: LayoutTemplate },
   { title: "Portfolio", url: "/portfolio", icon: BriefcaseBusiness },
   { title: "Configuration", url: "/config", icon: Settings },
 ];

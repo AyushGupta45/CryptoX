@@ -11,7 +11,7 @@ import {
   AiOutlineFunction,
   AiOutlinePercentage,
 } from "react-icons/ai";
-
+import { Separator } from "@/components/ui/separator";
 import { coindata } from "@/constants";
 
 const CHART_ID = "kline-chart";
@@ -21,7 +21,9 @@ const Kline = ({ data, symbol }) => {
   const [chartType, setChartType] = useState("candle");
   const [yAxisType, setYAxisType] = useState("normal");
   const [primaryIndicators, setPrimaryIndicators] = useState([]);
-  const [secondaryIndicators, setSecondaryIndicators] = useState([]);
+  const [secondaryIndicators, setSecondaryIndicators] = useState([
+    { name: "VOL" },
+  ]);
   const [modalOpen, setModalOpen] = useState(false);
 
   const coinInfo = coindata.find((coin) => coin.symbol === symbol);
@@ -96,16 +98,19 @@ const Kline = ({ data, symbol }) => {
 
     chart.removeTechnicalIndicator(getMainId());
     primaryIndicators.forEach((indicator) => {
-        chart.createTechnicalIndicator(indicator.name, true, { id: getMainId() });
+      chart.createTechnicalIndicator(indicator.name, true, { id: getMainId() });
     });
 
-    const secondaryIds = secondaryIndicators.map((indicator) => `sub-${indicator.name}`);
+    const secondaryIds = secondaryIndicators.map(
+      (indicator) => `sub-${indicator.name}`
+    );
     secondaryIds.forEach((id) => chart.removeTechnicalIndicator(id)); // Ensure all secondary indicators are removed
     secondaryIndicators.forEach((indicator) => {
-        chart.createTechnicalIndicator(indicator.name, false, { id: `sub-${indicator.name}` });
+      chart.createTechnicalIndicator(indicator.name, false, {
+        id: `sub-${indicator.name}`,
+      });
     });
-}, [chart, primaryIndicators, secondaryIndicators]);
-
+  }, [chart, primaryIndicators, secondaryIndicators]);
 
   useEffect(() => {
     if (chart) updateIndicators();
@@ -129,7 +134,7 @@ const Kline = ({ data, symbol }) => {
     <div className="w-full h-full relative">
       <div className="flex items-center justify-between gap-2 mb-2 text-gray-700">
         <h1 className="text-3xl font-bold">{coinName} Chart</h1>
-        <div className="flex gap-4">
+        <div className="flex gap-4 mt-1">
           <div
             className="flex flex-col justify-center items-center cursor-pointer w-[70px]"
             onClick={() => setModalOpen(true)}
@@ -137,6 +142,11 @@ const Kline = ({ data, symbol }) => {
             <AiOutlineFunction size={26} />
             <span className="text-xs">Indicator</span>
           </div>
+
+          <Separator
+            orientation="vertical"
+            className="bg-gray-300 w-[0.5px] h-10"
+          />
 
           <div
             className="flex flex-col justify-center items-center cursor-pointer w-[70px]"
@@ -162,6 +172,11 @@ const Kline = ({ data, symbol }) => {
             )}
           </div>
 
+          <Separator
+            orientation="vertical"
+            className="bg-gray-300 w-[0.5px] h-10"
+          />
+
           <div
             className="flex flex-col justify-center items-center cursor-pointer w-[70px]"
             onClick={toggleYAxisType}
@@ -180,7 +195,7 @@ const Kline = ({ data, symbol }) => {
           </div>
         </div>
       </div>
-      <div id={CHART_ID} className="h-[93%]" />
+      <div id={CHART_ID} className="h-[87%]" />
 
       <IndicatorModal
         open={modalOpen}

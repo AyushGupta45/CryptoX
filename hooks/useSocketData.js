@@ -1,21 +1,28 @@
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:4000");
+const socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
 
-const useKlineData = (symbol, interval = "1d") => {
+const useSocketData = (symbol, interval = "1d") => {
   const [klineData, setKlineData] = useState([]);
+  const [dataFrame, setDataFrame] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!symbol) return;
 
     setKlineData([]);
+    setDataFrame([]);
+    setLoading(true);
+
     socket.emit("unsubscribeFromSymbol", { symbol });
     socket.emit("subscribeToSymbol", { symbol, interval });
 
     const handleKlineData = (data) => {
       if (data.history) {
         setKlineData(data.history);
+        setDataFrame(data.history);
+        setLoading(false);
       } else if (data.newPoint) {
         setKlineData((prevData) => {
           const newData = [...prevData];
@@ -29,13 +36,15 @@ const useKlineData = (symbol, interval = "1d") => {
             lastCandle.close = data.newPoint.close;
             lastCandle.high = Math.max(lastCandle.high, data.newPoint.high);
             lastCandle.low = Math.min(lastCandle.low, data.newPoint.low);
-            lastCandle.volume += data.newPoint.volume;
+            lastCandle.volume = data.newPoint.volume; // Replace volume
           } else {
             newData.push(data.newPoint);
           }
 
           return newData;
         });
+
+        setDataFrame((prevData) => [...prevData, data.newPoint]);
       }
     };
 
@@ -47,7 +56,7 @@ const useKlineData = (symbol, interval = "1d") => {
     };
   }, [symbol, interval]);
 
-  return klineData;
+  return { klineData, dataFrame, loading };
 };
 
-export default useKlineData;
+export default useSocketData;
