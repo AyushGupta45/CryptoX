@@ -6,21 +6,23 @@ import { Separator } from "@/components/ui/separator";
 import React from "react";
 import { ThreeDots } from "react-loader-spinner";
 import useSocketData from "@/hooks/useSocketData";
+import useTechnicalIndicators from "@/hooks/useTechnicalIndicator";
 
 const MarketPage = ({ params: { slug } }) => {
   const symbol = slug.toUpperCase();
   const { klineData, dataFrame, loading } = useSocketData(symbol, "1d");
+  const enrichedDataFrame = useTechnicalIndicators(dataFrame);
 
   return (
     <div className="w-full h-full select-none">
       {!loading ? (
-        <div className="w-full h-full flex flex-row items-center justify-center gap-8">
+        <div className="w-full h-full flex flex-row justify-center gap-8">
           <Kline className="w-full" data={klineData} symbol={symbol} />
           <Separator
             orientation="vertical"
             className="bg-gray-300 w-[0.5px] h-[90%]"
           />
-          <DataTable data={dataFrame} symbol={symbol} />
+          <DataTable data={enrichedDataFrame} symbol={symbol} />
         </div>
       ) : (
         <div className="w-full h-[98%] flex justify-center items-center">
