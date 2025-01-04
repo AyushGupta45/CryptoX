@@ -1,15 +1,20 @@
 import express from "express";
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import { Server } from "socket.io";
+import Binance from "binance-api-node";
 import cors from "cors";
 import dotenv from "dotenv";
 import { createServer } from "http";
 import { fetchData } from "./controller/fetchData.js";
 import { socket } from "./controller/socket.js";
-import { getAccount, getBalance } from "./controller/binance.js";
-dotenv.config({path: "../.env.local"});
-import Binance from "binance-api-node";
+import {
+  getAccount,
+  getBalance,
+  handleBuy,
+  handleSell,
+} from "./controller/binance.js";
 
+dotenv.config({ path: "../.env.local" });
 const app = express();
 const server = createServer(app);
 const url = process.env.NEXT_PUBLIC_NEXT_URL;
@@ -21,10 +26,11 @@ app.use(
     allowedHeaders: ["Content-Type"],
   })
 );
+app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
-  console.log("Database is Connected")
-})
+  console.log("Database is Connected");
+});
 
 const io = new Server(server, {
   cors: {
@@ -43,6 +49,8 @@ io.on("connection", socket);
 app.get("/api/marketdata/price", fetchData);
 app.get("/api/account-info/get-account", getAccount);
 app.get("/api/account-info/get-balance", getBalance);
+app.post("/api/trade/buy", handleBuy);
+app.post("/api/trade/sell", handleSell);
 
 server.listen(process.env.BACKEND_PORT, () => {
   console.log(`Server running on ${process.env.NEXT_PUBLIC_BACKEND_URL}`);

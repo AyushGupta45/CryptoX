@@ -18,6 +18,10 @@ export const formatDate = (timestamp) => {
   return `${month} ${day}${suffix}, ${time}`;
 };
 
-export const formatDecimal = (value) => {
-  return parseFloat(value).toFixed(2);
+export const formatDecimal = (value, places = 2) => {
+  return parseFloat(value).toFixed(places);
+};
+
+export const getCryptoIcon = (asset) => {
+  return `https://www.cryptofonts.com/img/icons/${asset}.svg`;
 };

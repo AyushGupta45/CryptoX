@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { coindata } from "@/constants";
+import { getCryptoIcon } from "@/utils/functions";
 
 export const useFetchMarketData = () => {
   const [marketData, setMarketData] = useState(null);
@@ -18,9 +19,12 @@ export const useFetchMarketData = () => {
             const staticItem = coindata.find(
               (coin) => coin.symbol === dynamicItem.symbol
             );
+
+            const image = getCryptoIcon(staticItem.baseAsset.toLowerCase());
             return {
               ...dynamicItem,
               ...staticItem,
+              image,
             };
           });
 

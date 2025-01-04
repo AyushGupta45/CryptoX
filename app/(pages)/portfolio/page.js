@@ -1,9 +1,17 @@
-import React from 'react'
+"use client"
+
+import AssetsTable from "@/components/AssetsTable";
+import React from "react";
+import { useFetchBalance } from "@/hooks/usefetchBalance";
 
 const Portfolio = () => {
-  return (
-    <div>Portfolio</div>
-  )
-}
+  const balance  = useFetchBalance();
 
-export default Portfolio
+  return (
+    <div>
+      <AssetsTable className="overflow-auto" balance={balance} />
+    </div>
+  );
+};
+
+export default Portfolio;
