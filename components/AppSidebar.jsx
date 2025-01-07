@@ -64,7 +64,7 @@ export default function AppSidebar() {
           <span>
             <Copyright size={18} />{" "}
           </span>
-          <span>2024 CryptoX</span>
+          <span>{new Date().getFullYear()} CryptoX</span>
         </div>
       </SidebarFooter>
     </Sidebar>

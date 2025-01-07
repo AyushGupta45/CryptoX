@@ -58,6 +58,7 @@ export const IndicatorModal = ({
             placeholder="Search indicators..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            showIcon
           />
           <div className="max-h-96 overflow-y-auto">
             <div className="">

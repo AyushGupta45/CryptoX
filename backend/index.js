@@ -14,6 +14,14 @@ import {
   handleSell,
 } from "./controller/binance.js";
 
+import {
+  getConfigs,
+  createConfig,
+  createConfigs,
+  updateConfigAllowedAmount,
+  updateConfigTradingEnabled,
+} from "./controller/configuration.js";
+
 dotenv.config({ path: "../.env.local" });
 const app = express();
 const server = createServer(app);
@@ -47,10 +55,21 @@ export const userClient = Binance.default({
 
 io.on("connection", socket);
 app.get("/api/marketdata/price", fetchData);
+
+//binance routes
 app.get("/api/account-info/get-account", getAccount);
 app.get("/api/account-info/get-balance", getBalance);
 app.post("/api/trade/buy", handleBuy);
 app.post("/api/trade/sell", handleSell);
+
+
+//configuration routes
+app.get("/api/config/get-configs", getConfigs);
+app.post("/api/config/create-config", createConfig);
+app.post("/api/config/create-configs", createConfigs);
+app.post("/api/config/updateConfigAllowedAmount", updateConfigAllowedAmount);
+app.post("/api/config/updateConfigTradingEnabled/:symbol", updateConfigTradingEnabled);
+
 
 server.listen(process.env.BACKEND_PORT, () => {
   console.log(`Server running on ${process.env.NEXT_PUBLIC_BACKEND_URL}`);
