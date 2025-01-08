@@ -1,7 +1,7 @@
 "use client";
 
 import Kline from "@/components/charts/Kline";
-import DataTable from "@/components/DataTable";
+import DataTable from "@/components/tables/DataTable";
 import { Separator } from "@/components/ui/separator";
 import React from "react";
 import { ThreeDots } from "react-loader-spinner";

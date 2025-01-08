@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { dispose, init } from "klinecharts";
-import { IndicatorModal } from "../IndicatorModal";
+import { IndicatorModal } from "../modals/IndicatorModal";
 import { MdCandlestickChart } from "react-icons/md";
 import {
   AiOutlineLineChart,

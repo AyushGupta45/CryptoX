@@ -1,6 +1,6 @@
 "use client"
 
-import AssetsTable from "@/components/AssetsTable";
+import AssetsTable from "@/components/tables/AssetsTable";
 import React from "react";
 import { useFetchBalance } from "@/hooks/usefetchBalance";
 

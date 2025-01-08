@@ -67,7 +67,7 @@ app.post("/api/trade/sell", handleSell);
 app.get("/api/config/get-configs", getConfigs);
 app.post("/api/config/create-config", createConfig);
 app.post("/api/config/create-configs", createConfigs);
-app.post("/api/config/updateConfigAllowedAmount", updateConfigAllowedAmount);
+app.post("/api/config/updateConfigAllowedAmount/:symbol", updateConfigAllowedAmount);
 app.post("/api/config/updateConfigTradingEnabled/:symbol", updateConfigTradingEnabled);
 
 
