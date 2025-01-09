@@ -19,15 +19,6 @@ export const createConfig = async (req, res) => {
   }
 };
 
-export const createConfigs = async (req, res) => {
-  try {
-    const configs = await Config.insertMany(req.body);
-    res.status(201).json(configs);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
 export const updateConfigTradingEnabled = async (req, res) => {
   try {
     const { symbol } = req.params;

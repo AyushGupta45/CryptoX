@@ -17,10 +17,16 @@ import {
 import {
   getConfigs,
   createConfig,
-  createConfigs,
   updateConfigAllowedAmount,
   updateConfigTradingEnabled,
 } from "./controller/configuration.js";
+import {
+  createStrategy,
+  getStrategies,
+  getStrategy,
+  updateIndicatorEnabled,
+  updateStrategy,
+} from "./controller/strategy.js";
 
 dotenv.config({ path: "../.env.local" });
 const app = express();
@@ -62,14 +68,24 @@ app.get("/api/account-info/get-balance", getBalance);
 app.post("/api/trade/buy", handleBuy);
 app.post("/api/trade/sell", handleSell);
 
-
 //configuration routes
 app.get("/api/config/get-configs", getConfigs);
 app.post("/api/config/create-config", createConfig);
-app.post("/api/config/create-configs", createConfigs);
-app.post("/api/config/updateConfigAllowedAmount/:symbol", updateConfigAllowedAmount);
-app.post("/api/config/updateConfigTradingEnabled/:symbol", updateConfigTradingEnabled);
+app.post(
+  "/api/config/updateConfigAllowedAmount/:symbol",
+  updateConfigAllowedAmount
+);
+app.post(
+  "/api/config/updateConfigTradingEnabled/:symbol",
+  updateConfigTradingEnabled
+);
 
+//strategy routes
+app.get("/api/strategy/get-strategies", getStrategies);
+app.get("/api/strategy/get-strategy/:symbol", getStrategy);
+app.post("/api/strategy/create-strategy", createStrategy);
+app.post("/api/strategy/update-strategy/:symbol", updateStrategy);
+app.post("/api/strategy/update-indicator/", updateIndicatorEnabled);
 
 server.listen(process.env.BACKEND_PORT, () => {
   console.log(`Server running on ${process.env.NEXT_PUBLIC_BACKEND_URL}`);

@@ -10,8 +10,7 @@ const useTechnicalIndicators = (dataFrame) => {
     const calculateIndicators = () => {
       const closePrices = dataFrame.map((item) => item.close);
 
-      // Check if we have enough data points
-      const minRequiredDataPoints = Math.max(26, 14); // SlowPeriod for MACD, or RSI period
+      const minRequiredDataPoints = Math.max(26, 14);
       if (closePrices.length < minRequiredDataPoints) {
         console.warn("Not enough data to calculate indicators.");
         setProcessedData(

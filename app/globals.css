@@ -11,6 +11,12 @@
   width: 22px !important;
 }
 
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 /* ::-webkit-scrollbar {
   width: 10px;
 }
