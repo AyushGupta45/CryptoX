@@ -47,7 +47,7 @@ const ConfigurationModal = ({ isOpen, config, onClose, onUpdate }) => {
     if (!localConfig) return;
 
     try {
-      const response = await fetch(
+      const allowedResponse = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/config/updateConfigAllowedAmount/${localConfig.symbol}`,
         {
           method: "POST",
@@ -58,20 +58,36 @@ const ConfigurationModal = ({ isOpen, config, onClose, onUpdate }) => {
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to update config.");
+      if (!allowedResponse.ok) {
+        throw new Error("Failed to update allowed amount.");
       }
 
-      const updatedConfig = await response.json();
-      onUpdate(updatedConfig);
+      const strategyResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/strategy/update-strategy/${localConfig.symbol}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ indicators: strategy.indicators }),
+        }
+      );
+
+      if (!strategyResponse.ok) {
+        throw new Error("Failed to update strategy indicators.");
+      }
+
+      const updatedConfig = await allowedResponse.json();
+      const updatedStrategy = await strategyResponse.json();
+
+      onUpdate({ ...updatedConfig, ...updatedStrategy });
       onClose();
     } catch (error) {
-      console.error("Error updating config:", error.message);
+      console.error("Error saving configuration:", error.message);
     }
   };
 
   const handleCheck = async (symbol, indicatorKey) => {
-    console.log("clicked")
     if (!symbol || !indicatorKey) return;
 
     try {
@@ -116,10 +132,12 @@ const ConfigurationModal = ({ isOpen, config, onClose, onUpdate }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg" onOpenAutoFocus={(e) => e.preventDefault()} aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle className="border-b">
-            <div className="text-3xl mb-1 font-bold text-gray-700">Strategy</div>
+            <div className="text-3xl mb-1 font-bold text-gray-700">
+              Strategy
+            </div>
             <p className="text-xs text-gray-400 mb-4">
               Configure Strategy for {localConfig.name}
             </p>
@@ -140,9 +158,8 @@ const ConfigurationModal = ({ isOpen, config, onClose, onUpdate }) => {
                 </label>
                 <div>
                   <Input
-                    className="w-20 h-7 text-sm"
-                    type="number"
                     id={`allowedAmount-${localConfig._id}`}
+                    type="number"
                     value={localConfig.allowedAmount || ""}
                     onChange={(e) =>
                       setLocalConfig((prev) => ({
@@ -150,6 +167,7 @@ const ConfigurationModal = ({ isOpen, config, onClose, onUpdate }) => {
                         allowedAmount: e.target.value,
                       }))
                     }
+                    className="w-20 h-7 text-sm"
                   />
                 </div>
               </div>
@@ -162,9 +180,10 @@ const ConfigurationModal = ({ isOpen, config, onClose, onUpdate }) => {
               <div className="flex flex-col gap-2 p-0 border-4 border-gray-100/70">
                 <div className="flex items-center gap-1 font-medium text-sm text-gray-700 bg-gray-100/70 p-2">
                   <Checkbox
-                    id="ema-period"
+                    id="ema-enabled"
                     checked={strategy.indicators?.ema?.enabled || false}
-                    onChange={() => handleCheck(localConfig.symbol, "ema")}
+                    onClick={() => handleCheck(localConfig.symbol, "ema")}
+                    className="mr-1.5"
                   />
                   EMA
                   <span className="text-sm text-gray-500">
@@ -237,7 +256,8 @@ const ConfigurationModal = ({ isOpen, config, onClose, onUpdate }) => {
                   <Checkbox
                     id="macd-enabled"
                     checked={strategy.indicators?.macd?.enabled || false}
-                    onChange={() => handleCheck(localConfig.symbol, "macd")}
+                    onClick={() => handleCheck(localConfig.symbol, "macd")}
+                    className="mr-1.5"
                   />
                   MACD
                   <span className="text-sm text-gray-500">
@@ -310,7 +330,8 @@ const ConfigurationModal = ({ isOpen, config, onClose, onUpdate }) => {
                   <Checkbox
                     id="rsi-enabled"
                     checked={strategy.indicators?.rsi?.enabled || false}
-                    onChange={() => handleCheck(localConfig.symbol, "rsi")}
+                    onClick={() => handleCheck(localConfig.symbol, "rsi")}
+                    className="mr-1.5"
                   />
                   RSI
                   <span className="text-sm text-gray-500">

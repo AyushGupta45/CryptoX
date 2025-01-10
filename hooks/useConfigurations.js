@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getCryptoIcon } from "@/utils/functions";
-import { coindata } from "@/constants";
 
 export const useConfigurations = () => {
   const [data, setData] = useState(null);
@@ -20,7 +19,7 @@ export const useConfigurations = () => {
           const data = await response.json();
 
           const mergedData = data.map((item) => {
-            const image = getCryptoIcon(item.base.toLowerCase()); // Fetch the image based on the base
+            const image = getCryptoIcon(item.base.toLowerCase());
             return {
               ...item,
               image,

@@ -20,8 +20,8 @@ const MarketSkeleton = () => {
             <CardHeader className="flex flex-row items-center p-0 mb-3 gap-4">
               <Skeleton className="w-12 h-12 rounded-full" />
               <div className="flex flex-col items-start gap-1">
-                <Skeleton className="w-[200px] h-[30px]" />
-                <Skeleton className="w-[80px] h-[20px]" />
+                <Skeleton className="w-[200px] h-[35px]" />
+                <Skeleton className="w-[80px] h-[25px]" />
               </div>
             </CardHeader>
             <CardContent className="flex flex-row items-center justify-between gap-8 p-0 px-1 pb-2 border-b">

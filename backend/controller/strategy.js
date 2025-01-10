@@ -51,22 +51,30 @@ export const insertManyStrategies = async (req, res) => {
 export const updateStrategy = async (req, res) => {
   try {
     const { symbol } = req.params;
-    const updateData = req.body;
+    const { indicators } = req.body;
+
+    if (!indicators) {
+      return res.status(400).json({ message: "Indicators data is required" });
+    }
+
     const updatedStrategy = await Strategy.findOneAndUpdate(
       { symbol },
-      { ...updateData, updatedAt: new Date() },
+      { indicators, updatedAt: new Date() },
       { new: true }
     );
+
     if (!updatedStrategy) {
       return res.status(404).json({ message: "Strategy not found" });
     }
+
     res
       .status(200)
-      .json({ message: "Strategy updated successfully", updatedStrategy });
+      .json({ message: "Strategy indicators updated successfully", updatedStrategy });
   } catch (error) {
-    res.status(500).json({ message: "Error updating strategy", error });
+    res.status(500).json({ message: "Error updating strategy indicators", error });
   }
 };
+
 
 export const updateIndicatorEnabled = async (req, res) => {
   try {
