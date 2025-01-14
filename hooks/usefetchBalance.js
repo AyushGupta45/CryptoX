@@ -19,21 +19,27 @@ export const useFetchBalance = () => {
         if (response.ok) {
           const data = await response.json();
 
-          // Filter to include only assets present in coindata.baseAsset
           const validAssets = data.filter((asset) =>
             coindata.some((coin) => coin.baseAsset === asset.asset)
           );
 
-          // Merge with image field
-          const mergedData = validAssets.map((asset) => {
+
+          const finalData = validAssets.map((asset) => {
+            const coinDetails = coindata.find(
+              (coin) => coin.baseAsset === asset.asset
+            );
+
             const image = getCryptoIcon(asset.asset.toLowerCase());
+
             return {
               ...asset,
-              image,
+              symbol: coinDetails?.symbol || null,
+              name: coinDetails?.name || "Unknown",
+              image, 
             };
           });
+          setBalance(finalData);
 
-          setBalance(mergedData);
         } else {
           console.error("Failed to fetch balance");
         }

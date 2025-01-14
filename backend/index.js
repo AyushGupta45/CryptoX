@@ -9,6 +9,7 @@ import { socket } from "./controller/socket.js";
 import binanceRoutes from "./routes/binance.route.js";
 import configurationRoutes from "./routes/configuration.route.js";
 import strategyRoutes from "./routes/strategy.route.js";
+import { analyzeTechnicalData } from "./controller/technicalanalysis.js";
 
 dotenv.config({ path: "../.env.local" });
 const app = express();

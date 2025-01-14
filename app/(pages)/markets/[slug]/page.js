@@ -4,40 +4,35 @@ import Kline from "@/components/charts/Kline";
 import DataTable from "@/components/tables/DataTable";
 import { Separator } from "@/components/ui/separator";
 import React from "react";
-import { ThreeDots } from "react-loader-spinner";
 import useSocketData from "@/hooks/useSocketData";
-import useTechnicalIndicators from "@/hooks/useTechnicalIndicator";
+import { Skeleton } from "@/components/ui/skeleton";
+import BuySell from "@/components/trade/buysell";
 
 const MarketPage = ({ params: { slug } }) => {
   const symbol = slug.toUpperCase();
   const { klineData, dataFrame, loading } = useSocketData(symbol, "1d");
-  const enrichedDataFrame = useTechnicalIndicators(dataFrame);
 
   return (
     <div className="w-full h-full select-none">
-      {!loading ? (
-        <div className="w-full h-full flex flex-row justify-center gap-8">
-          <Kline className="w-full" data={klineData} symbol={symbol} />
-          <Separator
-            orientation="vertical"
-            className="bg-gray-300 w-[0.5px] h-[90%]"
-          />
-          <DataTable data={enrichedDataFrame} symbol={symbol} />
+      <div className="w-full h-full flex flex-row justify-center gap-8">
+        <div className="relative w-full">
+          {loading ? (
+            <Skeleton className="h-full w-full" />
+          ) : (
+            <Kline className="w-full" data={klineData} symbol={symbol} />
+          )}
         </div>
-      ) : (
-        <div className="w-full h-[98%] flex justify-center items-center">
-          <ThreeDots
-            visible={true}
-            height="100"
-            width="100"
-            color="#4fa94d"
-            radius="9"
-            ariaLabel="three-dots-loading"
-            wrapperStyle={{}}
-            wrapperClass=""
-          />
+
+        <Separator
+          orientation="vertical"
+          className="bg-gray-300 w-[0.5px] h-[95%]"
+        />
+        <div className="flex flex-col gap-8">
+          <DataTable data={dataFrame} symbol={symbol} />
+          <Separator className="bg-gray-300 w-full" />
+          <BuySell symbol={symbol}/>
         </div>
-      )}
+      </div>
     </div>
   );
 };

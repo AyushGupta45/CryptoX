@@ -12,6 +12,8 @@ export const useFetchMarketData = () => {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/marketdata/price`, {
           cache: "no-store",
         });
+
+        
         if (response.ok) {
           const dynamicData = await response.json();
 

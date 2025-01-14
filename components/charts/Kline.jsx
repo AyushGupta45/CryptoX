@@ -195,7 +195,7 @@ const Kline = ({ data, symbol }) => {
           </div>
         </div>
       </div>
-      <div id={CHART_ID} className="h-[82%]" />
+      <div id={CHART_ID} className="h-[82%] mt-4" />
 
       <IndicatorModal
         open={modalOpen}
