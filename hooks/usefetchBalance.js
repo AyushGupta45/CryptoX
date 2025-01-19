@@ -10,7 +10,7 @@ export const useFetchBalance = () => {
     const fetchBalance = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/account-info/get-balance`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/account-info/get-assets`,
           {
             cache: "no-store",
           }

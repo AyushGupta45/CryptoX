@@ -1,3 +1,4 @@
+import { formatDecimal } from "../../utils/functions.js";
 import { coindata } from "../../constants.js";
 import { userClient } from "../index.js";
 import Binance from "binance-api-node";
@@ -9,19 +10,48 @@ const client = Binance.default({
 });
 const activeStreams = {};
 
-export const getAccount = async (req, res) => {
+
+export const getAccountBalance = async (req, res) => {
   try {
-    const account = await userClient.accountInfo();
-    return res.status(200).json(account);
+    const accountInfo = await userClient.accountInfo();
+
+    if (!accountInfo || !accountInfo.balances) {
+      throw new Error("Failed to fetch account balances.");
+    }
+
+    const usdtBalance = accountInfo.balances.find(
+      (balance) => balance.asset === "USDT"
+    );
+
+    if (!usdtBalance || parseFloat(usdtBalance.free) <= 0) {
+      return res
+        .status(200)
+        .json({
+          availableUSDT: 0,
+          message: "No USDT available for spending.",
+        });
+    }
+
+    return res
+      .status(200)
+      .json({
+        availableUSDT: parseFloat(usdtBalance.free),
+        message: "USDT available for spending retrieved successfully.",
+      });
   } catch (error) {
     console.error("Error fetching account info:", error.message);
     return res
       .status(500)
-      .json({ error: "Failed to fetch account info", details: error.message });
+      .json({
+        error: "Failed to fetch account info",
+        details: error.message,
+      });
   }
 };
 
-export const getBalance = async (req, res) => {
+
+
+export const getAssets = async (req, res) => {
   try {
     const account = await userClient.accountInfo();
     const data = account.balances
@@ -43,7 +73,7 @@ export const getBalance = async (req, res) => {
 export const handleBuy = async (req, res) => {
   const { symbol, quantity } = req.body;
   try {
-    const orderQuantity = quantity.toFixed(4);
+    const orderQuantity = formatDecimal(quantity, 4);
 
     const order = await userClient.order({
       symbol,
@@ -63,10 +93,14 @@ export const handleBuy = async (req, res) => {
 };
 
 export const handleSell = async (req, res) => {
-  const { symbol } = req.body;
+  const { symbol, quantity } = req.body;
 
   if (!symbol) {
     return res.status(400).json({ error: "Symbol is required" });
+  }
+
+  if (!quantity || typeof quantity !== "number" || quantity <= 0) {
+    return res.status(400).json({ error: "Valid quantity is required" });
   }
 
   try {
@@ -100,7 +134,15 @@ export const handleSell = async (req, res) => {
         .json({ error: `Insufficient balance for asset ${baseAsset}` });
     }
 
-    const orderQuantity = userAsset.amount.toFixed(4);
+    if (quantity > userAsset.amount) {
+      return res.status(400).json({
+        error: `Requested quantity (${quantity}) exceeds available balance (${userAsset.amount.toFixed(
+          4
+        )})`,
+      });
+    }
+
+    const orderQuantity = quantity.toFixed(4);
     const order = await userClient.order({
       symbol,
       side: "SELL",
@@ -123,6 +165,8 @@ export const handleSell = async (req, res) => {
     });
   }
 };
+
+
 
 export const fetchMarketData = async (symbols) => {
   try {

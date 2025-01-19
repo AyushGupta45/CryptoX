@@ -1,36 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { useFetchBalance } from "@/hooks/usefetchBalance";
+import { formatDecimal } from "@/utils/functions";
 
 const BuySell = ({ symbol }) => {
   const availableAsset = useFetchBalance();
   const [tradeType, setTradeType] = useState("BUY");
   const [quantity, setQuantity] = useState("");
+  const [totalBalance, setTotalBalance] = useState(null);
+  const [currentAssetAmount, setCurrentAssetAmount] = useState(null);
 
   const isLoading = availableAsset === null;
 
-  const currentAsset = availableAsset?.find(
-    (asset) => asset.symbol === symbol?.toUpperCase()
-  );
+  useEffect(() => {
+    if (!isLoading) {
+      const asset = availableAsset?.find(
+        (asset) => asset.symbol === symbol?.toUpperCase()
+      );
+      setCurrentAssetAmount(asset ? asset.amount : 0);
+    }
+  }, [availableAsset, isLoading, symbol]);
 
-  const currentAssetAmount = isLoading
-    ? "Fetching amount..."
-    : currentAsset
-    ? currentAsset.amount
-    : 0;
+  const fetchTotalBalance = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/account-info/get-balance`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setTotalBalance(data.availableUSDT || 0);
+      } else {
+        setTotalBalance(0);
+      }
+    } catch (error) {
+      console.error("Error fetching total balance:", error.message);
+      setTotalBalance(0);
+    }
+  };
+
+  useEffect(() => {
+    fetchTotalBalance();
+  }, []);
 
   const handleTrade = async () => {
     try {
       const endpoint = `${
         process.env.NEXT_PUBLIC_BACKEND_URL
       }/api/trade/${tradeType.toLowerCase()}`;
-      const payload =
-        tradeType === "BUY"
-          ? { symbol, quantity: parseFloat(quantity) }
-          : { symbol };
+      const tradeQuantity = parseFloat(quantity);
+      const payload = {
+        symbol,
+        quantity: tradeQuantity,
+      };
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -39,7 +64,8 @@ const BuySell = ({ symbol }) => {
       });
 
       if (!response.ok) {
-        throw new Error("An unexpected error occurred.");
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.error || "An unexpected error occurred.");
       }
 
       const data = await response.json();
@@ -47,6 +73,14 @@ const BuySell = ({ symbol }) => {
         title: `${tradeType} Order Successful`,
         description: `Trade executed successfully. Order ID: ${data.data.orderId}`,
       });
+
+      // Refresh balances after successful trade
+      await fetchTotalBalance(); // Refresh total USDT balance
+      if (tradeType === "BUY") {
+        setCurrentAssetAmount((prev) => prev + tradeQuantity); // Increase asset balance
+      } else if (tradeType === "SELL") {
+        setCurrentAssetAmount((prev) => prev - tradeQuantity); // Decrease asset balance
+      }
     } catch (error) {
       console.error("Error during trade:", error);
 
@@ -87,11 +121,16 @@ const BuySell = ({ symbol }) => {
             </div>
           </div>
 
-          <p className="text-right text-xs font-medium text-gray-400">
-            Total Available Amount: {currentAssetAmount}
-          </p>
-          <div className="mb-6">
-            <label htmlFor={`quantity`} className="w-40 text-gray-600 text-sm">
+          <div className="flex justify-between text-xs font-medium text-gray-400 mb-2">
+            <p>Available Assets: {isLoading ? "..." : formatDecimal(currentAssetAmount, 4)}</p>
+            <p>
+              Total Balance:{" "}
+              {totalBalance === null ? "..." : formatDecimal(totalBalance, 4)}
+            </p>
+          </div>
+
+          <div className="mb-6 flex justify-center items-center gap-2">
+            <label htmlFor={`quantity`} className="text-gray-600 text-sm">
               Quantity:
             </label>
             <Input
@@ -100,7 +139,7 @@ const BuySell = ({ symbol }) => {
               placeholder="Enter quantity"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              className="w-full"
+              className="w-full h-8"
             />
           </div>
 
