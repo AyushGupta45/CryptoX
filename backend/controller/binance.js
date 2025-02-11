@@ -2,6 +2,7 @@ import { formatDecimal } from "../../utils/functions.js";
 import { coindata } from "../../constants.js";
 import { userClient } from "../index.js";
 import Binance from "binance-api-node";
+import Trade from "../models/trade.model.js";
 
 const client = Binance.default({
   apiKey: process.env.BINANCE_API_KEY,
@@ -9,7 +10,6 @@ const client = Binance.default({
   httpBase: process.env.BINANCE_TESTNET_URL,
 });
 const activeStreams = {};
-
 
 export const getAccountBalance = async (req, res) => {
   try {
@@ -24,32 +24,24 @@ export const getAccountBalance = async (req, res) => {
     );
 
     if (!usdtBalance || parseFloat(usdtBalance.free) <= 0) {
-      return res
-        .status(200)
-        .json({
-          availableUSDT: 0,
-          message: "No USDT available for spending.",
-        });
+      return res.status(200).json({
+        availableUSDT: 0,
+        message: "No USDT available for spending.",
+      });
     }
 
-    return res
-      .status(200)
-      .json({
-        availableUSDT: parseFloat(usdtBalance.free),
-        message: "USDT available for spending retrieved successfully.",
-      });
+    return res.status(200).json({
+      availableUSDT: parseFloat(usdtBalance.free),
+      message: "USDT available for spending retrieved successfully.",
+    });
   } catch (error) {
     console.error("Error fetching account info:", error.message);
-    return res
-      .status(500)
-      .json({
-        error: "Failed to fetch account info",
-        details: error.message,
-      });
+    return res.status(500).json({
+      error: "Failed to fetch account info",
+      details: error.message,
+    });
   }
 };
-
-
 
 export const getAssets = async (req, res) => {
   try {
@@ -70,6 +62,15 @@ export const getAssets = async (req, res) => {
   }
 };
 
+export const getTrades = async (req, res) => {
+  try{
+    const trades = await Trade.find();
+    res.status(200).json(trades);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 export const handleBuy = async (req, res) => {
   const { symbol, quantity } = req.body;
   try {
@@ -80,6 +81,13 @@ export const handleBuy = async (req, res) => {
       side: "BUY",
       type: "MARKET",
       quantity: orderQuantity,
+    });
+
+    await Trade.create({
+      symbol,
+      action: "Buy",
+      price: parseFloat(order.fills[0].price),
+      quantity: parseFloat(order.executedQty),
     });
 
     res
@@ -150,6 +158,13 @@ export const handleSell = async (req, res) => {
       quantity: orderQuantity,
     });
 
+    await Trade.create({
+      symbol,
+      action: "Sell",
+      price: parseFloat(order.fills[0].price),
+      quantity: parseFloat(order.executedQty),
+    });
+
     return res.status(200).json({
       message: "Sell order executed successfully",
       data: {
@@ -165,8 +180,6 @@ export const handleSell = async (req, res) => {
     });
   }
 };
-
-
 
 export const fetchMarketData = async (symbols) => {
   try {

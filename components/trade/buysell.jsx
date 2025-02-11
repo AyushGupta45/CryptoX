@@ -69,17 +69,17 @@ const BuySell = ({ symbol }) => {
       }
 
       const data = await response.json();
+      setQuantity("");
       toast({
         title: `${tradeType} Order Successful`,
         description: `Trade executed successfully. Order ID: ${data.data.orderId}`,
       });
 
-      // Refresh balances after successful trade
-      await fetchTotalBalance(); // Refresh total USDT balance
+      await fetchTotalBalance();
       if (tradeType === "BUY") {
-        setCurrentAssetAmount((prev) => prev + tradeQuantity); // Increase asset balance
+        setCurrentAssetAmount((prev) => prev + tradeQuantity);
       } else if (tradeType === "SELL") {
-        setCurrentAssetAmount((prev) => prev - tradeQuantity); // Decrease asset balance
+        setCurrentAssetAmount((prev) => prev - tradeQuantity);
       }
     } catch (error) {
       console.error("Error during trade:", error);
