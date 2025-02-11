@@ -63,16 +63,17 @@ export const getAssets = async (req, res) => {
 };
 
 export const getTrades = async (req, res) => {
-  try{
+  try {
     const trades = await Trade.find();
     res.status(200).json(trades);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};
 
 export const handleBuy = async (req, res) => {
   const { symbol, quantity } = req.body;
+
   try {
     const orderQuantity = formatDecimal(quantity, 4);
 
@@ -83,87 +84,71 @@ export const handleBuy = async (req, res) => {
       quantity: orderQuantity,
     });
 
+    const entryPrice = parseFloat(order.fills[0].price);
+    const investment = entryPrice * parseFloat(order.origQty);
+
     await Trade.create({
       symbol,
-      action: "Buy",
-      price: parseFloat(order.fills[0].price),
-      quantity: parseFloat(order.executedQty),
+      entry: entryPrice,
+      quantity: parseFloat(order.origQty),
+      investment,
     });
 
-    res
-      .status(200)
-      .json({ message: "Trade executed successfully", data: order });
+    res.status(200).json({
+      message: "Trade executed successfully",
+      data: order,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Trade execution failed", details: error.message });
+    res.status(500).json({
+      error: "Trade execution failed",
+      details: error.message,
+    });
   }
 };
 
 export const handleSell = async (req, res) => {
-  const { symbol, quantity } = req.body;
+  const { symbol } = req.body;
 
   if (!symbol) {
     return res.status(400).json({ error: "Symbol is required" });
   }
 
-  if (!quantity || typeof quantity !== "number" || quantity <= 0) {
-    return res.status(400).json({ error: "Valid quantity is required" });
-  }
-
   try {
     const coinInfo = coindata.find((coin) => coin.symbol === symbol);
     if (!coinInfo) {
-      return res
-        .status(400)
-        .json({ error: `Invalid symbol: ${symbol}. Asset not found.` });
+      return res.status(400).json({ error: `Invalid symbol: ${symbol}` });
     }
-
     const baseAsset = coinInfo.baseAsset;
 
     const account = await userClient.accountInfo();
-
     if (!account || !account.balances) {
       throw new Error("Invalid account data returned from API");
     }
 
-    const balances = account.balances
-      .filter((balance) => parseFloat(balance.free) > 0)
-      .map((balance) => ({
-        asset: balance.asset,
-        amount: parseFloat(balance.free),
-      }));
+    const assetBalance = account.balances.find(
+      (balance) => balance.asset === baseAsset
+    );
 
-    const userAsset = balances.find((balance) => balance.asset === baseAsset);
+    const availableQuantity = assetBalance ? parseFloat(assetBalance.free) : 0;
 
-    if (!userAsset || userAsset.amount <= 0) {
+    if (availableQuantity <= 0) {
       return res
         .status(400)
-        .json({ error: `Insufficient balance for asset ${baseAsset}` });
+        .json({ error: `Insufficient balance for ${baseAsset}` });
     }
 
-    if (quantity > userAsset.amount) {
-      return res.status(400).json({
-        error: `Requested quantity (${quantity}) exceeds available balance (${userAsset.amount.toFixed(
-          4
-        )})`,
-      });
-    }
-
-    const orderQuantity = quantity.toFixed(4);
     const order = await userClient.order({
       symbol,
       side: "SELL",
       type: "MARKET",
-      quantity: orderQuantity,
+      quantity: availableQuantity.toFixed(4),
     });
 
-    await Trade.create({
-      symbol,
-      action: "Sell",
-      price: parseFloat(order.fills[0].price),
-      quantity: parseFloat(order.executedQty),
-    });
+    await Trade.findOneAndUpdate(
+      { symbol, exit: null },
+      { exit: parseFloat(order.fills[0].price) },
+      { sort: { timestamp: -1 }, new: true }
+    );
 
     return res.status(200).json({
       message: "Sell order executed successfully",

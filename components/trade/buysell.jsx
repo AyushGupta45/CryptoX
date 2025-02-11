@@ -10,7 +10,6 @@ const BuySell = ({ symbol }) => {
   const availableAsset = useFetchBalance();
   const [tradeType, setTradeType] = useState("BUY");
   const [quantity, setQuantity] = useState("");
-  const [totalBalance, setTotalBalance] = useState(null);
   const [currentAssetAmount, setCurrentAssetAmount] = useState(null);
 
   const isLoading = availableAsset === null;
@@ -24,38 +23,20 @@ const BuySell = ({ symbol }) => {
     }
   }, [availableAsset, isLoading, symbol]);
 
-  const fetchTotalBalance = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/account-info/get-balance`
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setTotalBalance(data.availableUSDT || 0);
-      } else {
-        setTotalBalance(0);
-      }
-    } catch (error) {
-      console.error("Error fetching total balance:", error.message);
-      setTotalBalance(0);
-    }
-  };
-
-  useEffect(() => {
-    fetchTotalBalance();
-  }, []);
-
   const handleTrade = async () => {
     try {
       const endpoint = `${
         process.env.NEXT_PUBLIC_BACKEND_URL
       }/api/trade/${tradeType.toLowerCase()}`;
-      const tradeQuantity = parseFloat(quantity);
-      const payload = {
-        symbol,
-        quantity: tradeQuantity,
-      };
+
+      const payload = { symbol };
+      if (tradeType === "BUY") {
+        const tradeQuantity = parseFloat(quantity);
+        if (!tradeQuantity || tradeQuantity <= 0) {
+          throw new Error("Enter a valid quantity to buy.");
+        }
+        payload.quantity = tradeQuantity;
+      }
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -75,11 +56,10 @@ const BuySell = ({ symbol }) => {
         description: `Trade executed successfully. Order ID: ${data.data.orderId}`,
       });
 
-      await fetchTotalBalance();
       if (tradeType === "BUY") {
-        setCurrentAssetAmount((prev) => prev + tradeQuantity);
+        setCurrentAssetAmount((prev) => prev + parseFloat(payload.quantity));
       } else if (tradeType === "SELL") {
-        setCurrentAssetAmount((prev) => prev - tradeQuantity);
+        setCurrentAssetAmount(0); // Since we're selling all
       }
     } catch (error) {
       console.error("Error during trade:", error);
@@ -121,27 +101,26 @@ const BuySell = ({ symbol }) => {
             </div>
           </div>
 
-          <div className="flex justify-between text-xs font-medium text-gray-400 mb-2">
-            <p>Available Assets: {isLoading ? "..." : formatDecimal(currentAssetAmount, 4)}</p>
-            <p>
-              Total Balance:{" "}
-              {totalBalance === null ? "..." : formatDecimal(totalBalance, 4)}
-            </p>
+          <div className="flex justify-end text-xs font-medium text-gray-400 mb-2">
+            <p>Available: {isLoading ? "..." : formatDecimal(currentAssetAmount, 4)}</p>
           </div>
 
-          <div className="mb-6 flex justify-center items-center gap-2">
-            <label htmlFor={`quantity`} className="text-gray-600 text-sm">
-              Quantity:
-            </label>
-            <Input
-              id="quantity"
-              type="number"
-              placeholder="Enter quantity"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              className="w-full h-8"
-            />
-          </div>
+          {/* Show quantity input only for Buy */}
+          {tradeType === "BUY" && (
+            <div className="mb-6 flex justify-center items-center gap-2">
+              <label htmlFor="quantity" className="text-gray-600 text-sm">
+                Quantity:
+              </label>
+              <Input
+                id="quantity"
+                type="number"
+                placeholder="Enter quantity"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                className="w-full h-8"
+              />
+            </div>
+          )}
 
           {/* Place Order Button */}
           <Button

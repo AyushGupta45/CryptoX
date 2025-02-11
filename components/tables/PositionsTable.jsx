@@ -9,11 +9,9 @@ import {
 } from "@/components/ui/table";
 import { formatDate, formatDecimal } from "@/utils/functions";
 
-const TradesTable = ({ trades }) => {
-  const completedTrades = trades.filter(
-    (trade) => trade.entry !== null && trade.exit !== null
-  );
-  const displayedTrades = [...completedTrades].reverse();
+const PositionsTable = ({ trades }) => {
+  const openTrades = trades.filter((trade) => trade.exit === null);
+  const displayedTrades = [...openTrades].reverse();
 
   return (
     <div>
@@ -24,10 +22,7 @@ const TradesTable = ({ trades }) => {
               Symbol
             </TableHead>
             <TableHead className="p-2 text-start text-gray-700 font-medium border border-gray-300">
-              Entry
-            </TableHead>
-            <TableHead className="p-2 text-start text-gray-700 font-medium border border-gray-300">
-              Exit
+              Price
             </TableHead>
             <TableHead className="p-2 text-start text-gray-700 font-medium border border-gray-300">
               Quantity
@@ -59,10 +54,6 @@ const TradesTable = ({ trades }) => {
                 </TableCell>
 
                 <TableCell className="p-2 text-gray-600 border border-gray-300">
-                  {formatDecimal(trade.exit, 5)}
-                </TableCell>
-
-                <TableCell className="p-2 text-gray-600 border border-gray-300">
                   {formatDecimal(trade.quantity, 5)}
                 </TableCell>
 
@@ -78,10 +69,10 @@ const TradesTable = ({ trades }) => {
           ) : (
             <TableRow>
               <TableCell
-                colSpan="6"
+                colSpan="5"
                 className="text-center p-4 text-gray-500 border border-gray-300"
               >
-                No completed trades available
+                No open positions
               </TableCell>
             </TableRow>
           )}
@@ -91,4 +82,4 @@ const TradesTable = ({ trades }) => {
   );
 };
 
-export default TradesTable;
+export default PositionsTable;

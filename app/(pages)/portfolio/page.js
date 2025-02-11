@@ -7,20 +7,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 import TradesTable from "@/components/tables/TradesTable";
 import { useFetchTrades } from "@/hooks/usefetchTrades";
 import SimplePieChart from "@/components/charts/SimplePieChart";
-import TradeLineChart from "@/components/charts/TradeLineChart";
-import { Separator } from "@/components/ui/separator";
+import PositionsTable from "@/components/tables/PositionsTable";
 
 const Portfolio = () => {
   const balance = useFetchBalance();
   const trades = useFetchTrades();
 
   return (
-    <div className="flex flex-row w-full justify-center h-full gap-6">
-      <div className="w-full flex flex-col gap-4">
+    <div className="flex flex-row w-full justify-center h-full gap-8">
+      <div className="w-full flex flex-col gap-6">
         <div className="h-[300px] flex flex-col">
           <div>
-            <h1 className="text-3xl font-bold text-gray-700">Portfolio</h1>
-            <p className="text-xs text-gray-400 mb-2">Portfolio Statistics</p>
+            <h1 className="text-3xl font-bold text-gray-700">
+              Portfolio Overview
+            </h1>
+            <p className="text-xs text-gray-400 mb-2">
+              Summary of your portfolio performance
+            </p>
           </div>
           <div className="flex-1 overflow-auto">
             {trades ? (
@@ -31,16 +34,16 @@ const Portfolio = () => {
           </div>
         </div>
 
-        <Separator className="bg-gray-300 w-full" />
-
         <div className="h-1/2 flex flex-col">
           <div>
-            <h1 className="text-3xl font-bold text-gray-700">Chart</h1>
-            <p className="text-xs text-gray-400 mb-2">Trade lines chart</p>
+            <h1 className="text-3xl font-bold text-gray-700">Open Positions</h1>
+            <p className="text-xs text-gray-400 mb-2">
+              Currently held positions
+            </p>
           </div>
           <div className="flex-1 overflow-auto">
             {trades ? (
-              <TradeLineChart trades={trades} />
+              <PositionsTable trades={trades} />
             ) : (
               <Skeleton className="w-full h-full rounded-none" />
             )}
@@ -48,11 +51,13 @@ const Portfolio = () => {
         </div>
       </div>
 
-      <div className="w-full flex flex-col gap-4">
-        <div className="h-[370px] flex flex-col">
+      <div className="w-full flex flex-col gap-6">
+        <div className="h-[325px] flex flex-col">
           <div>
-            <h1 className="text-3xl font-bold text-gray-700">Balance</h1>
-            <p className="text-xs text-gray-400 mb-2">Current Balance</p>
+            <h1 className="text-3xl font-bold text-gray-700">Asset Holdings</h1>
+            <p className="text-xs text-gray-400 mb-2">
+              Your current asset distribution
+            </p>
           </div>
           <div className="flex-1 overflow-auto">
             {balance ? (
@@ -63,10 +68,12 @@ const Portfolio = () => {
           </div>
         </div>
 
-        <div className="h-[260px] flex flex-col">
+        <div className="h-[300px] flex flex-col">
           <div>
-            <h1 className="text-3xl font-bold text-gray-700">Trades</h1>
-            <p className="text-xs text-gray-400 mb-2">Trades Executed so for</p>
+            <h1 className="text-3xl font-bold text-gray-700">Trade History</h1>
+            <p className="text-xs text-gray-400 mb-2">
+              Record of executed trades
+            </p>
           </div>
           <div className="flex-1 overflow-auto">
             {trades ? (
