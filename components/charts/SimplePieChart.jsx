@@ -1,5 +1,6 @@
 import React from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+
 const SimplePieChart = ({ trades }) => {
   const validTrades = trades.filter((trade) => trade.exit !== null);
 
@@ -39,9 +40,17 @@ const SimplePieChart = ({ trades }) => {
               label={false}
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={entry.color}
+                  className="cursor-pointer"
+                />
               ))}
             </Pie>
+            <Tooltip
+              formatter={(value, name) => [`$ ${value.toFixed(4)}`, name]}
+          
+            />
           </PieChart>
         </ResponsiveContainer>
       </div>

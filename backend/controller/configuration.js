@@ -19,6 +19,17 @@ export const createConfig = async (req, res) => {
   }
 };
 
+export const createConfigs = async (req, res) => {
+  const configs = req.body;
+
+  try {
+    const savedConfigs = await Config.insertMany(configs);
+    res.status(201).json(savedConfigs);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 export const updateConfigTradingEnabled = async (req, res) => {
   try {
     const { symbol } = req.params;
@@ -35,20 +46,24 @@ export const updateConfigTradingEnabled = async (req, res) => {
   }
 };
 
-export const updateConfigAllowedAmount = async (req, res) => {
+export const updateConfig = async (req, res) => {
   try {
     const { symbol } = req.params;
-    const { allowedAmount } = req.body;
+    const { allowedBudget, riskPercentage, stopLoss, cooldown } = req.body;
+
     const config = await Config.findOneAndUpdate(
       { symbol },
-      { allowedAmount },
+      { allowedBudget, riskPercentage, stopLoss, cooldown },
       { new: true }
     );
+
     if (!config) {
       return res.status(404).json({ message: "Config not found" });
     }
+
     res.status(200).json(config);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+

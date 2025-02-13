@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -72,9 +71,9 @@ const ConfigurationCards = ({ data: initialData }) => {
   }
 
   return (
-    <div className="flex flex-wrap justify-start gap-8">
+    <div className="flex flex-wrap justify-start gap-7">
       {data.map((item) => (
-        <Card key={item._id} className="shadow-lg rounded-lg w-[380px]">
+        <Card key={item._id} className="shadow-lg rounded-lg w-[390px]">
           <CardHeader className="flex flex-row items-center gap-4 justify-between">
             <div className="flex items-center gap-3">
               <img
@@ -84,7 +83,12 @@ const ConfigurationCards = ({ data: initialData }) => {
               />
               <div>
                 <div className="flex flex-row text-3xl font-extrabold text-gray-700 gap-2">
-                  <p>{item.name}</p>
+                  <p>
+                    {item.name}{" "}
+                    <span className="text-sm text-gray-500">
+                      ({`${item.base}`})
+                    </span>
+                  </p>
                 </div>
               </div>
             </div>
@@ -109,23 +113,26 @@ const ConfigurationCards = ({ data: initialData }) => {
             </div>
 
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">Base</p>
-              <p className="text-sm text-gray-500">{`${item.base}`}</p>
-            </div>
-
-            <div className="flex items-center justify-between">
               <p className="text-sm font-medium">Quote</p>
               <p className="text-sm text-gray-500">{item.symbol.slice(-4)}</p>
             </div>
 
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">Minimum</p>
-              <p className="text-sm text-gray-500">{`${item.minimum}`}</p>
+              <p className="text-sm font-medium">Allowed Budget</p>
+              <p className="text-sm text-gray-500">{`${item.allowedBudget}`}</p>
             </div>
 
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">Allowed Amount</p>
-              <p className="text-sm text-gray-500">{`${item.allowedAmount}`}</p>
+              <p className="text-sm font-medium">Risk Percentage</p>
+              <p className="text-sm text-gray-500">{`${item.riskPercentage}`}</p>
+            </div>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">Stop Loss</p>
+              <p className="text-sm text-gray-500">{`${item.stopLoss}`}</p>
+            </div>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">Cooldown Period</p>
+              <p className="text-sm text-gray-500">{`${item.cooldown}`}</p>
             </div>
           </CardContent>
         </Card>

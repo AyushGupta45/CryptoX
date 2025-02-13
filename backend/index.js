@@ -8,8 +8,8 @@ import { createServer } from "http";
 import { socket } from "./controller/socket.js";
 import binanceRoutes from "./routes/binance.route.js";
 import configurationRoutes from "./routes/configuration.route.js";
-import strategyRoutes from "./routes/strategy.route.js";
-import { analyzeTechnicalData } from "./controller/technicalanalysis.js";
+import { analyzeTradingDecision } from "./controller/technicalanalysis.js";
+import OpenAI from "openai";
 
 dotenv.config({ path: "../.env.local" });
 const app = express();
@@ -42,11 +42,14 @@ export const userClient = Binance.default({
   httpBase: process.env.BINANCE_TESTNET_URL,
 });
 
+export const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 io.on("connection", socket);
 
 app.use("/api", binanceRoutes);
 app.use("/api", configurationRoutes);
-app.use("/api", strategyRoutes);
 
 server.listen(process.env.BACKEND_PORT, () => {
   console.log(`Server running on ${process.env.NEXT_PUBLIC_BACKEND_URL}`);
