@@ -34,7 +34,7 @@ const Portfolio = () => {
           </div>
         </div>
 
-        <div className="h-1/2 flex flex-col">
+        <div className="h-[320px] flex flex-col">
           <div>
             <h1 className="text-3xl font-bold text-gray-700">Open Positions</h1>
             <p className="text-xs text-gray-400 mb-2">

@@ -55,23 +55,23 @@ const TradesTable = ({ trades }) => {
                 </TableCell>
 
                 <TableCell className="p-2 text-gray-600 border border-gray-300">
-                  {formatDecimal(trade.entry, 5)}
+                  {formatDecimal(trade.entry, 4)}
                 </TableCell>
 
                 <TableCell className="p-2 text-gray-600 border border-gray-300">
-                  {formatDecimal(trade.exit, 5)}
+                  {formatDecimal(trade.exit, 4)}
                 </TableCell>
 
                 <TableCell className="p-2 text-gray-600 border border-gray-300">
-                  {formatDecimal(trade.quantity, 5)}
+                  {formatDecimal(trade.quantity, 4)}
                 </TableCell>
 
                 <TableCell className="p-2 text-gray-600 border border-gray-300">
-                  {trade.investment ? formatDecimal(trade.investment, 5) : "-"}
+                  {trade.investment ? formatDecimal(trade.investment, 3) : "-"}
                 </TableCell>
 
                 <TableCell className="p-2 text-gray-600 border border-gray-300">
-                  {formatDate(trade.timestamp)}
+                  {formatDate(trade.updatedAt)}
                 </TableCell>
               </TableRow>
             ))

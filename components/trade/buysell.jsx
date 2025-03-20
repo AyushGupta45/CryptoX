@@ -53,13 +53,13 @@ const BuySell = ({ symbol }) => {
       setQuantity("");
       toast({
         title: `${tradeType} Order Successful`,
-        description: `Trade executed successfully. Order ID: ${data.data.orderId}`,
+        description: `Trade executed successfully. Order ID: ${data.order.orderId}`,
       });
 
       if (tradeType === "BUY") {
         setCurrentAssetAmount((prev) => prev + parseFloat(payload.quantity));
       } else if (tradeType === "SELL") {
-        setCurrentAssetAmount(0); // Since we're selling all
+        setCurrentAssetAmount(0);
       }
     } catch (error) {
       console.error("Error during trade:", error);

@@ -3,6 +3,7 @@ import { coindata } from "../../constants.js";
 import { userClient } from "../index.js";
 import Binance from "binance-api-node";
 import Trade from "../models/trade.model.js";
+import Config from "../models/config.model.js";
 
 const client = Binance.default({
   apiKey: process.env.BINANCE_API_KEY,
@@ -71,54 +72,57 @@ export const getTrades = async (req, res) => {
   }
 };
 
-export const handleBuy = async (req, res) => {
-  const { symbol, quantity } = req.body;
+export const executeBuyOrder = async (params) => {
+  const { symbol, quantity } = params;
 
   try {
-    const orderQuantity = formatDecimal(quantity, 4);
+    // Fetch the config from the database
+    const config = await Config.findOne({ symbol });
+    if (!config) {
+      throw new Error(`No configuration found for symbol: ${symbol}`);
+    }
 
     const order = await userClient.order({
       symbol,
       side: "BUY",
       type: "MARKET",
-      quantity: orderQuantity,
+      quantity: formatDecimal(quantity, 4),
     });
 
     const entryPrice = parseFloat(order.fills[0].price);
-    const investment = entryPrice * parseFloat(order.origQty);
+    const stopLossPrice = entryPrice * (1 - config.stopLoss / 100);
 
     await Trade.create({
       symbol,
       entry: entryPrice,
       quantity: parseFloat(order.origQty),
-      investment,
+      investment: entryPrice * parseFloat(order.origQty),
+      stopLoss: stopLossPrice,
+      riskPercentage: config.riskPercentage,
     });
 
-    res.status(200).json({
-      message: "Trade executed successfully",
-      data: order,
-    });
+    return { success: true, order };
   } catch (error) {
-    res.status(500).json({
-      error: "Trade execution failed",
-      details: error.message,
-    });
+    console.error(`Buy order failed for ${symbol}:`, error);
+    return { success: false, error: error.message };
   }
 };
 
-export const handleSell = async (req, res) => {
-  const { symbol } = req.body;
-
-  if (!symbol) {
-    return res.status(400).json({ error: "Symbol is required" });
-  }
+export const executeSellOrder = async (params) => {
+  const { symbol } = params;
 
   try {
-    const coinInfo = coindata.find((coin) => coin.symbol === symbol);
-    if (!coinInfo) {
-      return res.status(400).json({ error: `Invalid symbol: ${symbol}` });
+    const openTrades = await Trade.find({ symbol, exit: null });
+    if (openTrades.length === 0) {
+      return { 
+        success: false, 
+        error: `No open positions for ${symbol} to sell` 
+      };
     }
-    const baseAsset = coinInfo.baseAsset;
+
+
+    const coinInfo = coindata.find((coin) => coin.symbol === symbol);
+    const baseAsset = coinInfo?.baseAsset;
 
     const account = await userClient.accountInfo();
     if (!account || !account.balances) {
@@ -144,25 +148,38 @@ export const handleSell = async (req, res) => {
       quantity: availableQuantity.toFixed(4),
     });
 
-    await Trade.findOneAndUpdate(
+    await Trade.updateMany(
       { symbol, exit: null },
-      { exit: parseFloat(order.fills[0].price) },
-      { sort: { timestamp: -1 }, new: true }
+      { exit: parseFloat(order.fills[0].price) }
     );
 
-    return res.status(200).json({
-      message: "Sell order executed successfully",
-      data: {
-        orderId: order.orderId,
-        quantity: parseFloat(order.origQty),
-      },
-    });
+    return { success: true, order };
   } catch (error) {
-    console.error(`Error executing sell order for ${symbol}:`, error.message);
-    return res.status(500).json({
-      error: "Sell order execution failed",
-      details: error.message,
-    });
+    console.error(`Sell order failed for ${symbol}:`, error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Existing Express routes can now use these functions
+export const handleBuy = async (req, res) => {
+  try {
+    const result = await executeBuyOrder(req.body);
+    result.success
+      ? res.status(200).json(result)
+      : res.status(400).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const handleSell = async (req, res) => {
+  try {
+    const result = await executeSellOrder(req.body);
+    result.success
+      ? res.status(200).json(result)
+      : res.status(400).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 

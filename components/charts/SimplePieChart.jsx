@@ -4,6 +4,19 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 const SimplePieChart = ({ trades }) => {
   const validTrades = trades.filter((trade) => trade.exit !== null);
 
+  // If there are no valid trades, display a message
+  if (validTrades.length === 0) {
+    return (
+      <div className="flex flex-row items-center justify-center w-full h-full border-2 p-4">
+        <div className="w-full text-center">
+          <p className="text-gray-500 p-4 text-sm">
+            No Investment Data Available
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   let totalInvestment = 0;
   let profit = 0;
   let loss = 0;
@@ -49,7 +62,6 @@ const SimplePieChart = ({ trades }) => {
             </Pie>
             <Tooltip
               formatter={(value, name) => [`$ ${value.toFixed(4)}`, name]}
-          
             />
           </PieChart>
         </ResponsiveContainer>

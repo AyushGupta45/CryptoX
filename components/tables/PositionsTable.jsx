@@ -10,6 +10,7 @@ import {
 import { formatDate, formatDecimal } from "@/utils/functions";
 
 const PositionsTable = ({ trades }) => {
+  console.log(trades)
   const openTrades = trades.filter((trade) => trade.exit === null);
   const displayedTrades = [...openTrades].reverse();
 
@@ -31,6 +32,9 @@ const PositionsTable = ({ trades }) => {
               Investment
             </TableHead>
             <TableHead className="p-2 text-start text-gray-700 font-medium border border-gray-300">
+            stopLoss
+            </TableHead>
+            <TableHead className="p-2 text-start text-gray-700 font-medium border border-gray-300">
               Timestamp
             </TableHead>
           </TableRow>
@@ -50,19 +54,23 @@ const PositionsTable = ({ trades }) => {
                 </TableCell>
 
                 <TableCell className="p-2 text-gray-600 border border-gray-300">
-                  {formatDecimal(trade.entry, 5)}
+                  {formatDecimal(trade.entry, 4)}
                 </TableCell>
 
                 <TableCell className="p-2 text-gray-600 border border-gray-300">
-                  {formatDecimal(trade.quantity, 5)}
+                  {formatDecimal(trade.quantity, 4)}
                 </TableCell>
 
                 <TableCell className="p-2 text-gray-600 border border-gray-300">
-                  {trade.investment ? formatDecimal(trade.investment, 5) : "-"}
+                  {trade.investment ? formatDecimal(trade.investment, 3) : "-"}
                 </TableCell>
 
                 <TableCell className="p-2 text-gray-600 border border-gray-300">
-                  {formatDate(trade.timestamp)}
+                  {trade.stopLoss ? formatDecimal(trade.stopLoss, 3) : "-"}
+                </TableCell>
+
+                <TableCell className="p-2 text-gray-600 border border-gray-300">
+                  {formatDate(trade.updatedAt)}
                 </TableCell>
               </TableRow>
             ))
