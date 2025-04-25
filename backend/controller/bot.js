@@ -1,6 +1,10 @@
 import Config from "../models/config.model.js";
 import Trade from "../models/trade.model.js";
-import { executeBuyOrder, executeSellOrder, fetchHistoricalData } from "./binance.js";
+import {
+  executeBuyOrder,
+  executeSellOrder,
+  fetchHistoricalData,
+} from "./binance.js";
 import ollama from "ollama";
 
 const getMarketData = async (symbol) => {
@@ -113,11 +117,6 @@ export const analyzeTradingDecision = async () => {
       const signal = await getOllamaSignal(config.symbol, marketData);
 
       if (signal === "BUY") {
-        const quantity = calculatePosition(
-          config,
-          marketData.price,
-          marketData.volatility
-        );
         const openTrades = await Trade.countDocuments({
           symbol: config.symbol,
           exit: null,
@@ -153,16 +152,19 @@ const executeOrder = async (config, side, quantity) => {
   }
   try {
     if (side === "BUY") {
-      await executeBuyOrder(config.symbol, quantity);
+      // await executeBuyOrder(config.symbol, quantity);
+      console.log(`Buy signal for ${config.symbol}, Quantity-${quantity}`);
     } else if (side === "SELL") {
-      await executeSellOrder(config.symbol,);
+      await executeSellOrder(config.symbol);
+      // console.log(`Sell signal for ${config.symbol}`);
+    } else{
+      
+      console.log(`Neutal signal for ${config.symbol}`)
     }
-
     // await Config.updateOne(
-    //   { _id: config._id }, 
+    //   { _id: config._id },
     //   { lastTradeTime: new Date() }
     // );
-    
   } catch (error) {
     console.error(`Order execution failed for ${config.symbol}:`, error);
   }

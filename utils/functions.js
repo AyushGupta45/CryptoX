@@ -5,6 +5,7 @@ export const formatDate = (timestamp) => {
   const month = date.toLocaleString("en-US", options);
 
   const day = date.getDate();
+  const year = date.getFullYear();
   const suffix =
     day % 10 === 1 && day !== 11
       ? "st"
@@ -14,8 +15,7 @@ export const formatDate = (timestamp) => {
       ? "rd"
       : "th";
 
-  const time = date.toTimeString().split(" ")[0];
-  return `${month} ${day}${suffix}, ${time}`;
+  return `${month} ${day}${suffix}, ${year}`;
 };
 
 export const formatDecimal = (value, places = 2) => {
